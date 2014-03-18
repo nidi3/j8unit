@@ -1,4 +1,5 @@
 j8unit
 ======
 
-nicify junit with java 8 features
+Nicify junit with java 8 features.
+For examples, see [Tests](../../tree/master/src/test/java/guru/nidi/j8unit/SimpleTest.java)
