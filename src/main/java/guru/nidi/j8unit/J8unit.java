@@ -7,35 +7,12 @@ import java.util.List;
 /**
  *
  */
-public class J8unit {
-    public static class TestMethod {
-        private final TestMethod parent;
-        private final String description;
-        private final Runnable runnable;
-
-        public TestMethod(TestMethod parent, String description, Runnable runnable) {
-            this.parent = parent;
-            this.description = description;
-            this.runnable = runnable;
-        }
-
-        public String getDescription() {
-            String res = "";
-            TestMethod tm = this;
-            while (tm != null) {
-                res = tm.description + " " + res;
-                tm = tm.parent;
-            }
-            return res;
-        }
-
-        public Runnable getRunnable() {
-            return runnable;
-        }
-    }
-
+public class J8Unit {
     private static HashMap<String, List<TestMethod>> methods = new HashMap<>();
     private static ThreadLocal<TestMethod> current = new ThreadLocal<>();
+
+    private J8Unit() {
+    }
 
     public static void describe(String description, Runnable test) {
         TestMethod old = current.get();
@@ -67,16 +44,50 @@ public class J8unit {
     }
 
     public static String description(Runnable runnable) {
-        for(List<TestMethod> ms: methods.values()){
-            for(TestMethod m:ms){
-                if (m.getRunnable()==runnable){
-                    return m.getDescription();
-                }
-            }
+//        for (List<TestMethod> ms : methods.values()) {
+//            for (TestMethod m : ms) {
+//                if (m.getRunnable() == runnable) {
+//                    return m.getDescription();
+//                }
+//            }
+//        }
+//        return "unknown";
+        return methods.values().stream()
+                .flatMap(tms -> tms.stream().filter(tm -> tm.getRunnable() == runnable))
+                .findFirst()
+                .map(TestMethod::getDescription)
+                .orElse("unknown");
+    }
+
+    private static class TestMethod {
+        private final TestMethod parent;
+        private final String description;
+        private final Runnable runnable;
+
+        public TestMethod(TestMethod parent, String description, Runnable runnable) {
+            this.parent = parent;
+            this.description = description;
+            this.runnable = runnable;
         }
-        return null;
-//        return methods.values().stream()
-//                .filter(tms -> tms.stream().anyMatch(tm -> tm.getRunnable() == runnable))
-//                .findFirst().get().get(0).getDescription();
+
+        public String getDescription() {
+            String res = "";
+            TestMethod tm = this;
+            while (tm != null) {
+                res = tm.description + " " + res;
+                tm = tm.parent;
+            }
+            return res;
+        }
+
+        public Runnable getRunnable() {
+            return runnable;
+        }
+
+
     }
 }
+
+
+
+
